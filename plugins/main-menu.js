@@ -1,4 +1,4 @@
-import {
+      import {
   promises,
   readFileSync
 } from "fs";
@@ -216,4 +216,4 @@ function ucapan() {
     res = "Good Night 🌙😴";
   }
   return res;
-}
+      }
