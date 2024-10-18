@@ -21,6 +21,85 @@ for (let i = 0; i < ownerlist.length; i += 2) {
         true                        
     ];
     global.owner.push(owner);
+}import { smsg } from './lib/simple.js';
+import { format } from 'util';
+import { fileURLToPath } from 'url';
+import path, { join } from 'path';
+import { unwatchFile, watchFile } from 'fs';
+import chalk from 'chalk';
+import fetch from 'node-fetch';
+import Pino from 'pino';
+
+/**
+ * @type {import("@whiskeysockets/baileys")}
+ */
+const isNumber = x => typeof x === 'number' && !isNaN(x);
+const delay = ms =>
+  isNumber(ms) &&
+  new Promise(resolve =>
+    setTimeout(function () {
+      clearTimeout(this);
+      resolve();
+    }, ms)
+  );
+
+// Define the OWNER variable
+const OWNER = process.env.OWNER || '923446437286'; // Default owner number
+
+if (!OWNER) {
+    throw new Error("Owner env is not set");
+}
+
+// Remaining code...
+const { getAggregateVotesInPollMessage, makeInMemoryStore } = await (
+  await import('@whiskeysockets/baileys')
+).default;
+
+const store = makeInMemoryStore({
+  logger: Pino().child({
+    level: 'fatal',
+    stream: 'store',
+  }),
+});
+
+// The rest of your code remains unchanged...
+export async function handler(chatUpdate) {
+    this.msgqueque = this.msgqueque || [];
+    if (!chatUpdate)
+        return;
+    this.pushMessage(chatUpdate.messages).catch(console.error);
+    let m = chatUpdate.messages[chatUpdate.messages.length - 1];
+    if (!m)
+        return;
+    
+    // Ensure global database is loaded
+    if (global.db.data == null)
+        await global.loadDatabase();
+    
+    try {
+        m = smsg(this, m) || m;
+        if (!m) return;
+        
+        m.exp = 0;
+        m.credit = false;
+        m.bank = false;
+        m.chicken = false;
+
+        // User management code...
+        
+        // Check if sender is the owner
+        const isROwner = [OWNER, ...global.owner.map(([number]) => number)]
+            .map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
+            .includes(m.sender);
+        
+        const isOwner = isROwner || m.fromMe;
+        // ... (rest of your existing code)
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        // Clean up queue logic...
+    }
 }
 
 //💌------------------------------------------💌
